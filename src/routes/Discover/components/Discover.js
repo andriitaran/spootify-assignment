@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import DiscoverBlock from "./DiscoverBlock/components/DiscoverBlock";
 import "../styles/_discover.scss";
-import axios from "axios";
-import config from "../../../config";
-import qs from "qs";
+import getToken from "../../../api/getToken";
+import getData from "../../../api/getData";
 
 export default class Discover extends Component {
   constructor() {
@@ -15,47 +14,15 @@ export default class Discover extends Component {
     };
   }
 
-  //Function to make API requests
-  async makeRequest(path) {
-    //Generates Access Token
-    const {
-      data: { access_token: token },
-    } = await axios.post(
-      config.api.authUrl,
-      qs.stringify({ grant_type: "client_credentials" }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Basic ${btoa(
-            `${config.api.clientId}:${config.api.clientSecret}`
-          )}`,
-        },
-      }
-    );
-
-    //Gets the data
-    const res = await axios.get(
-      `${config.api.baseUrl}/browse/${path}?locale=en_US`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return res;
-  }
+  token = getToken();
 
   //Fetch functions
-  async fetchNewReleases() {
-    const result = this.makeRequest("new-releases");
-    return result;
-  }
+  fetchNewReleases = async () => getData("new-releases", await this.token);
 
-  async fetchFeaturedPlaylists() {
-    const result = this.makeRequest("featured-playlists");
-    return result;
-  }
+  fetchFeaturedPlaylists = async () =>
+    getData("featured-playlists", await this.token);
 
-  async fetchCategories() {
-    const result = this.makeRequest("categories");
-    return result;
-  }
+  fetchCategories = async () => getData("categories", await this.token);
 
   //Handlers
   handleNewReleases = (result) => {
@@ -71,11 +38,9 @@ export default class Discover extends Component {
   };
 
   async componentDidMount() {
-    await Promise.all([
-      this.fetchNewReleases().then(this.handleNewReleases),
-      this.fetchFeaturedPlaylists().then(this.handleFeaturedPlaylists),
-      this.fetchCategories().then(this.handleCategories),
-    ]);
+    this.fetchNewReleases().then(this.handleNewReleases);
+    this.fetchFeaturedPlaylists().then(this.handleFeaturedPlaylists);
+    this.fetchCategories().then(this.handleCategories);
   }
 
   render() {
