@@ -14,15 +14,13 @@ export default class Discover extends Component {
     };
   }
 
-  token = getToken();
-
-  //Fetch functions
-  fetchNewReleases = async () => getData("new-releases", await this.token);
+  //Fetch requests
+  fetchNewReleases = async () => getData("new-releases", await getToken());
 
   fetchFeaturedPlaylists = async () =>
-    getData("featured-playlists", await this.token);
+    getData("featured-playlists", await getToken());
 
-  fetchCategories = async () => getData("categories", await this.token);
+  fetchCategories = async () => getData("categories", await getToken());
 
   //Handlers
   handleNewReleases = (result) => {
@@ -37,6 +35,7 @@ export default class Discover extends Component {
     this.setState({ categories: result.data.categories.items });
   };
 
+  //Fetch data, set state on mounting
   async componentDidMount() {
     this.fetchNewReleases().then(this.handleNewReleases);
     this.fetchFeaturedPlaylists().then(this.handleFeaturedPlaylists);
